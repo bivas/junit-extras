@@ -1,6 +1,7 @@
 *.class
 .gradle/
 build/
+artifacts/
 
 # Package Files #
 *.jar

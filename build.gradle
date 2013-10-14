@@ -1,4 +1,18 @@
 apply plugin: 'java'
+apply plugin: 'propdeps'
+apply plugin: 'propdeps-maven'
+apply plugin: 'propdeps-eclipse'
+apply plugin: 'maven-publish'
+
+
+buildscript {
+    repositories {
+        maven { url 'http://repo.springsource.org/plugins-release' }
+    }
+    dependencies {
+        classpath 'org.springframework.build.gradle:propdeps-plugin:0.0.4'
+    }
+}
 
 repositories {
 	mavenCentral()
@@ -6,5 +20,45 @@ repositories {
 
 dependencies {
 	compile 'junit:junit:4.10'
-	compile 'org.springframework:spring-test:3.2.4.RELEASE'
+	optional 'org.springframework:spring-test:3.2.4.RELEASE'
+	optional 'org.easymock:easymock:3.1'
+	compile 'commons-lang:commons-lang:2.6'
+	compile 'commons-logging:commons-logging:1.1.3'
+	compile 'net.sourceforge.collections:collections-generic:4.01'
 }
+
+task javadocJar (type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+
+task sourceJar (type : Jar) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+publishing {
+    publications {
+        myPublication(MavenPublication) {
+            from components.java
+            artifact ('README.md') {
+                classifier = 'README'
+                extension  = 'md'
+            }
+            artifact (sourceJar) {
+                classifier = 'sources'
+            }
+            artifact (javadocJar) { 
+                classifier = 'javadoc'
+            }
+        }
+    }
+    repositories {
+        maven {
+            url "file:/${project.projectDir}/artifacts"
+        }
+    }
+}
+
+group = 'com.bluedesk'
+version = 1.0
